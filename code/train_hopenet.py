@@ -20,7 +20,7 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-            default=0, type=int)
+            default=1, type=int)
     parser.add_argument('--num_epochs', dest='num_epochs', help='Maximum number of training epochs.',
           default=5, type=int)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
     print('Loading data')
 
-    transformations = transforms.Compose([transforms.Scale(240),
+    transformations = transforms.Compose([transforms.Resize(240),
     transforms.RandomCrop(224), transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
@@ -134,7 +134,7 @@ if __name__ == '__main__':
     alpha = args.alpha
 
     softmax = nn.Softmax().cuda(gpu)
-    idx_tensor = [idx for idx in xrange(66)]
+    idx_tensor = [idx for idx in range(66)]
     idx_tensor = Variable(torch.FloatTensor(idx_tensor)).cuda(gpu)
 
     optimizer = torch.optim.Adam([{'params': get_ignored_params(model), 'lr': 0},
@@ -184,7 +184,8 @@ if __name__ == '__main__':
             loss_roll += alpha * loss_reg_roll
 
             loss_seq = [loss_yaw, loss_pitch, loss_roll]
-            grad_seq = [torch.ones(1).cuda(gpu) for _ in range(len(loss_seq))]
+            # grad_seq = [torch.ones(1).cuda(gpu) for _ in range(len(loss_seq))]
+            grad_seq = [torch.tensor(1.0).cuda(gpu) for _ in range(len(loss_seq))]
             optimizer.zero_grad()
             torch.autograd.backward(loss_seq, grad_seq)
             optimizer.step()
