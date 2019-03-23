@@ -50,6 +50,7 @@ class Synhead(Dataset):
         # Crop the face
         img = img.crop((int(x_min), int(y_min), int(x_max), int(y_max)))
 
+        # 反转扩充数据集
         # Flip?
         rnd = np.random.random_sample()
         if rnd < 0.5:
@@ -64,10 +65,13 @@ class Synhead(Dataset):
 
         # Bin values
         bins = np.array(range(-99, 102, 3))
+        # [-99,-96,...,99]
         binned_pose = np.digitize([yaw, pitch, roll], bins) - 1
-
+        # 找每个角度所在的3度区间
         labels = torch.LongTensor(binned_pose)
+        # 标签
         cont_labels = torch.FloatTensor([yaw, pitch, roll])
+        # 数值标签
 
         if self.transform is not None:
             img = self.transform(img)
@@ -243,6 +247,8 @@ class AFLW2000(Dataset):
         mat_path = os.path.join(self.data_dir, self.y_train[index] + self.annot_ext)
 
         # Crop the face loosely
+
+        # pt2d are 21 landmarks points
         pt2d = utils.get_pt2d_from_mat(mat_path)
 
         x_min = min(pt2d[0,:])
@@ -250,6 +256,7 @@ class AFLW2000(Dataset):
         x_max = max(pt2d[0,:])
         y_max = max(pt2d[1,:])
 
+        # crop loosely
         k = 0.20
         x_min -= 2 * k * abs(x_max - x_min)
         y_min -= 2 * k * abs(y_max - y_min)

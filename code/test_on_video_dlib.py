@@ -42,6 +42,7 @@ if __name__ == '__main__':
 
     batch_size = 1
     gpu = args.gpu_id
+    # path of model snapshot
     snapshot_path = args.snapshot
     out_dir = 'output/video'
     video_path = args.video_path
